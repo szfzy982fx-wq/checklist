@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Emlak Yöneticisi v3.7 (Print Fix)</title>
+    <title>Emlak CRM v3.8 (Admin Mod)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -26,6 +27,10 @@
         .doc-price { font-size: 1.6rem; color: #198754; font-weight: bold; letter-spacing: -0.5px; }
         .desc-box { background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; font-size: 0.9rem; height: 100%; }
 
+        /* Admin Özel Alanı */
+        .admin-box { background-color: #fff3cd; border: 2px dashed #ffc107; border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+        .admin-title { color: #856404; font-weight: bold; border-bottom: 1px solid #ffeeba; margin-bottom: 10px; padding-bottom: 5px; }
+
         /* --- ÖZEL YAZDIRMA STİLLERİ (iPad Fix v2) --- */
         @media print {
             body, html { 
@@ -33,62 +38,25 @@
                 -webkit-print-color-adjust: exact; 
                 height: 100%; margin: 0; padding: 0; 
             }
-            
-            /* Sayfadaki her şeyi gizle */
             body > * { display: none !important; }
-
-            /* Sadece Modal'ı ve içeriğini göster, ama display block yap */
             #viewModal {
                 display: block !important;
                 position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                height: auto !important;
-                margin: 0 !important;
-                padding: 0 !important;
+                left: 0 !important; top: 0 !important;
+                width: 100% !important; height: auto !important;
+                margin: 0 !important; padding: 0 !important;
                 overflow: visible !important;
                 background-color: white !important;
                 z-index: 9999 !important;
             }
-
-            #viewModal .modal-dialog {
-                margin: 0 !important;
-                padding: 0 !important;
-                max-width: 100% !important;
-                width: 100% !important;
-                transform: none !important;
-            }
-
-            #viewModal .modal-content {
-                border: none !important;
-                box-shadow: none !important;
-                padding: 0 !important;
-            }
-
-            /* Yazdırma Alanı */
-            #printArea {
-                display: block !important;
-                visibility: visible !important;
-                color: black !important; /* Siyah Yazı Zorunlu */
-                padding: 20px !important;
-            }
-
-            /* Tüm alt elemanlar için görünürlük ve renk zorunluluğu */
-            #printArea * {
-                visibility: visible !important;
-                color: black !important;
-            }
-            
-            /* Fiyat Rengi İstisnası (Yeşil kalsın dersen) */
-            #printArea .doc-price {
-                color: #198754 !important; 
-            }
-
-            /* Butonları Gizle */
-            .modal-footer, .btn-close, .modal-header { 
-                display: none !important; 
-            }
+            #viewModal .modal-dialog { margin: 0 !important; padding: 0 !important; max-width: 100% !important; width: 100% !important; transform: none !important; }
+            #viewModal .modal-content { border: none !important; box-shadow: none !important; padding: 0 !important; }
+            #printArea { display: block !important; visibility: visible !important; color: black !important; padding: 20px !important; }
+            #printArea * { visibility: visible !important; color: black !important; }
+            #printArea .doc-price { color: #198754 !important; }
+            /* Admin kutusu renkli çıksın */
+            #printArea .admin-box { background-color: #fff3cd !important; border: 2px dashed #ffc107 !important; }
+            .modal-footer, .btn-close, .modal-header { display: none !important; }
         }
     </style>
 </head>
@@ -96,7 +64,7 @@
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-primary fw-bold">🏠 Portföy v3.7</h2>
+        <h2 class="text-primary fw-bold">🏠 Emlak CRM v3.8</h2>
         <div>
             <button class="btn btn-outline-success btn-sm" onclick="exportData()">💾 İndir</button>
             <input type="file" id="importFile" style="display:none" onchange="importData(this)">
@@ -118,6 +86,18 @@
             <form id="emlakForm">
                 <input type="hidden" id="recordId">
                 <div class="card p-4">
+                    
+                    <div class="alert alert-secondary mb-4">
+                        <h6 class="fw-bold text-dark">🔐 Yetki ve Mal Sahibi Bilgileri (Gizli)</h6>
+                        <small class="text-muted d-block mb-2">Bu bilgiler sadece "Yönetici Raporu"nda görünür.</small>
+                        <div class="row g-2">
+                            <div class="col-md-3"><input type="text" class="form-control form-control-sm" id="ownerName" placeholder="Yetki Veren Ad Soyad"></div>
+                            <div class="col-md-3"><input type="tel" class="form-control form-control-sm" id="ownerTel" placeholder="Telefon (05...)"></div>
+                            <div class="col-md-3"><div class="input-group input-group-sm"><span class="input-group-text">Başlangıç</span><input type="date" class="form-control" id="authStart"></div></div>
+                            <div class="col-md-3"><div class="input-group input-group-sm"><span class="input-group-text">Bitiş</span><input type="date" class="form-control" id="authEnd"></div></div>
+                        </div>
+                    </div>
+
                     <h5 class="form-section-title">Temel Bilgiler</h5>
                     <div class="row g-3">
                         <div class="col-12">
@@ -159,55 +139,36 @@
                 <div class="row g-3">
                     <div class="col-md-3"><label>Brüt m²</label><input type="number" class="form-control" id="grossM2"></div>
                     <div class="col-md-3"><label>Net m²</label><input type="number" class="form-control" id="netM2"></div>
-                    
-                    <div class="col-md-3">
-                        <label>Oda Sayısı</label>
+                    <div class="col-md-3"><label>Oda Sayısı</label>
                         <select class="form-select" id="rooms">
-                            <option>Stüdyo (1+0)</option>
-                            <option>1+1</option><option>1.5+1</option>
+                            <option>Stüdyo (1+0)</option><option>1+1</option><option>1.5+1</option>
                             <option>2+0</option><option>2+1</option><option>2.5+1</option>
                             <option>3+0</option><option>3+1</option><option>3.5+1</option>
                             <option>4+0</option><option>4+1</option><option>4+2</option><option>4+3</option><option>4+4</option>
                             <option>5+1</option><option>5.5+1</option><option>5+2</option>
-                            <option>6+1</option><option>6+2</option>
-                            <option>7+1</option>
+                            <option>6+1</option><option>6+2</option><option>7+1</option>
                             <option>Villa</option><option>Komple Bina</option>
                         </select>
                     </div>
-
-                    <div class="col-md-3">
-                        <label>Konut Şekli</label>
+                    <div class="col-md-3"><label>Konut Şekli</label>
                         <select class="form-select" id="housingDetail">
                             <option>Standart (Tek Kat)</option><option>Çatı Dubleksi</option><option>Bahçe Dubleksi</option>
                             <option>Ters Dubleks</option><option>Bahçe Katı</option><option>Ara Kat</option><option>En Üst Kat</option><option>Tripleks</option>
                         </select>
                     </div>
-
                     <div class="col-md-3"><label>Bina Yaşı</label>
-                        <select class="form-select" id="age">
-                            <option>0 (Yeni)</option><option>1-5</option><option>5-10</option><option>11-20</option><option>21+</option>
-                        </select>
+                        <select class="form-select" id="age"><option>0 (Yeni)</option><option>1-5</option><option>5-10</option><option>11-20</option><option>21+</option></select>
                     </div>
-                    
                     <div class="col-md-3"><label>Bulunduğu Kat</label><input type="text" class="form-control" id="floorCurr"></div>
                     <div class="col-md-3"><label>Kat Sayısı</label><input type="number" class="form-control" id="floorTotal"></div>
-
                     <div class="col-md-3"><label>Banyo</label><input type="number" class="form-control" id="bath" value="1"></div>
                     <div class="col-md-3"><label>WC</label><input type="number" class="form-control" id="wc" value="1"></div>
                     <div class="col-md-3"><label>Balkon</label><input type="number" class="form-control" id="balcony" value="1"></div>
-
                     <div class="col-md-3"><label>Yapı Tipi</label>
-                        <select class="form-select" id="structureType">
-                            <option>Betonarme</option><option>Çelik</option><option>Ahşap</option><option>Yığma</option><option>Prefabrik</option>
-                        </select>
+                        <select class="form-select" id="structureType"><option>Betonarme</option><option>Çelik</option><option>Ahşap</option><option>Yığma</option><option>Prefabrik</option></select>
                     </div>
-
                     <div class="col-md-3"><label>Isıtma</label>
-                        <select class="form-select" id="heating">
-                            <option>Klima</option><option>Kombi</option><option>Yerden Isıtma</option>
-                            <option>Merkezi</option><option>Merkezi (Pay Ölçer)</option>
-                            <option>Jeotermal</option><option>Soba</option><option>Yok</option>
-                        </select>
+                        <select class="form-select" id="heating"><option>Klima</option><option>Kombi</option><option>Yerden Isıtma</option><option>Merkezi</option><option>Merkezi (Pay Ölçer)</option><option>Jeotermal</option><option>Soba</option><option>Yok</option></select>
                     </div>
                 </div>
 
@@ -215,17 +176,11 @@
                 <div class="row g-3">
                     <div class="col-md-3"><label>Ada No</label><input type="number" class="form-control" id="adaNo"></div>
                     <div class="col-md-3"><label>Parsel No</label><input type="number" class="form-control" id="parselNo"></div>
-                    
                     <div class="col-md-3"><label>Kullanım</label>
                         <select class="form-select" id="usageStatus"><option>Boş</option><option>Kiracılı</option><option>Mülk Sahibi</option></select>
                     </div>
-
                     <div class="col-md-3"><label>Tapu</label>
-                        <select class="form-select" id="tapuStatus">
-                            <option>Kat Mülkiyeti</option><option>Kat İrtifakı</option><option>Arsa Paylı</option>
-                            <option>Müstakil Tapu</option><option>Hisseli</option><option>Zilliyet</option>
-                            <option>İskan Yok</option><option>İskan Başvurusu Yapıldı</option>
-                        </select>
+                        <select class="form-select" id="tapuStatus"><option>Kat Mülkiyeti</option><option>Kat İrtifakı</option><option>Arsa Paylı</option><option>Müstakil Tapu</option><option>Hisseli</option><option>Zilliyet</option><option>İskan Yok</option><option>İskan Başvurusu Yapıldı</option></select>
                     </div>
                 </div>
 
@@ -250,10 +205,8 @@
                     <div class="col-md-4"><input type="text" class="form-control" id="city" placeholder="İl"></div>
                     <div class="col-md-4"><input type="text" class="form-control" id="district" placeholder="İlçe"></div>
                     <div class="col-md-4"><input type="text" class="form-control" id="neighborhood" placeholder="Mahalle"></div>
-                    
                     <div class="col-md-6 mt-3"><label>Denize Mesafe (m)</label><input type="number" class="form-control" id="distSea"></div>
                     <div class="col-md-6 mt-3"><label>Ana Yola Mesafe (m)</label><input type="number" class="form-control" id="distMainRoad"></div>
-
                     <div class="col-12 mt-3"><div id="map"></div></div>
                     <input type="hidden" id="lat"><input type="hidden" id="lng">
                 </div>
@@ -280,8 +233,7 @@
                     </div>
                 </div>
                 <div class="accordion" id="featuresAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#c1">🏠 İç Özellikler</button></h2>
+                    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#c1">🏠 İç Özellikler</button></h2>
                         <div id="c1" class="accordion-collapse collapse show"><div class="accordion-body feature-grid">
                             <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Amerikan Mutfak"><label>Amerikan Mutfak</label></div>
                             <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Ankastre Set"><label>Ankastre Set</label></div>
@@ -308,8 +260,7 @@
                             <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Balkon"><label>Balkon</label></div>
                         </div></div>
                     </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c2">🏢 Dış & Site</button></h2>
+                    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c2">🏢 Dış & Site</button></h2>
                         <div id="c2" class="accordion-collapse collapse"><div class="accordion-body feature-grid">
                             <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Asansör"><label>Asansör</label></div>
                             <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Açık Otopark"><label>Açık Otopark</label></div>
@@ -328,8 +279,7 @@
                             <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Engelli Rampası"><label>Engelli Rampası</label></div>
                         </div></div>
                     </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c4">🚍 Ulaşım</button></h2>
+                    <div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c4">🚍 Ulaşım</button></h2>
                         <div id="c4" class="accordion-collapse collapse"><div class="accordion-body feature-grid">
                             <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Metro"><label>Metro</label></div>
                             <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Tramvay"><label>Tramvay</label></div>
@@ -377,7 +327,7 @@
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">İlan Belgesi</h5>
+                <h5 class="modal-title" id="viewModalTitle">İlan Belgesi</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             
@@ -458,6 +408,9 @@
         const id = document.getElementById('recordId').value || 'ID'+Date.now();
         const record = {
             id,
+            // YENİ GİZLİ ALANLAR
+            ownerName: getVal('ownerName'), ownerTel: getVal('ownerTel'), authStart: getVal('authStart'), authEnd: getVal('authEnd'),
+            // MEVCUT ALANLAR
             title: getVal('title'), desc: getVal('desc'), price: getVal('price'), currency: getVal('currency'),
             adType: getVal('adType'), propType: getVal('propType'),
             grossM2: getVal('grossM2'), netM2: getVal('netM2'), rooms: getVal('rooms'), age: getVal('age'),
@@ -487,7 +440,20 @@
         db.forEach(r => {
             let imgData = sessionImages[r.id];
             let thumb = imgData ? `<img src="${imgData}" style="width:50px; height:40px; object-fit:cover; border-radius:4px;">` : '📄';
-            tbody.innerHTML += `<tr><td>${thumb}</td><td><strong>${r.title}</strong><br><small class="text-muted">${r.district}</small></td><td>${formatDisplayPrice(r.price)} ${r.currency}</td><td><button class="btn btn-sm btn-info text-white" onclick="viewRecord('${r.id}')">👁️</button> <button class="btn btn-sm btn-primary" onclick="editRecord('${r.id}')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteRecord('${r.id}')">🗑️</button></td></tr>`;
+            // BUTONLAR: 👁️ (Müşteri) | ✏️ (Düzenle) | 🔒 (Yönetici) | 🗑️ (Sil)
+            tbody.innerHTML += `<tr>
+                <td>${thumb}</td>
+                <td><strong>${r.title}</strong><br><small class="text-muted">${r.district}</small></td>
+                <td>${formatDisplayPrice(r.price)} ${r.currency}</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-sm btn-info text-white" onclick="viewRecord('${r.id}', false)">👁️</button>
+                        <button class="btn btn-sm btn-warning" onclick="viewRecord('${r.id}', true)">🔒</button>
+                        <button class="btn btn-sm btn-primary" onclick="editRecord('${r.id}')">✏️</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteRecord('${r.id}')">🗑️</button>
+                    </div>
+                </td>
+            </tr>`;
         });
     }
 
@@ -497,14 +463,33 @@
         return `<div class="feature-group-header">${title}</div><div>${tags}</div>`;
     }
 
-    function viewRecord(id) {
+    // --- GÖRÜNTÜLEME FONKSİYONU (YENİ MODLU) ---
+    // isAdmin = true ise Gizli Bilgileri Gösterir
+    function viewRecord(id, isAdmin) {
         currentViewId = id;
         let db = JSON.parse(localStorage.getItem('emlakPortfoyDB')) || [];
         let r = db.find(x => x.id === id);
         if(!r) return;
 
+        let modalTitle = document.getElementById('viewModalTitle');
+        modalTitle.innerText = isAdmin ? "⚠️ YÖNETİCİ RAPORU (Gizli Bilgiler İçerir)" : "İlan Belgesi";
+        modalTitle.className = isAdmin ? "modal-title text-danger fw-bold" : "modal-title text-dark";
+
         let imgData = sessionImages[r.id];
         let photoHtml = imgData ? `<img src="${imgData}" class="img-fluid rounded border mb-3" style="width:100%; object-fit:cover;">` : `<div class="alert alert-light border text-center p-5">Fotoğraf Yok</div>`;
+
+        // ADMIN KUTUSU (Varsa)
+        let adminHtml = '';
+        if(isAdmin) {
+            adminHtml = `
+            <div class="admin-box">
+                <div class="admin-title">🔒 YETKİ & MAL SAHİBİ BİLGİLERİ</div>
+                <table class="table table-sm table-borderless mb-0" style="font-size:0.9rem;">
+                    <tr><td><strong>Ad Soyad:</strong></td><td>${r.ownerName || '-'}</td><td><strong>Telefon:</strong></td><td>${r.ownerTel || '-'}</td></tr>
+                    <tr><td><strong>Yetki Baş.:</strong></td><td>${r.authStart || '-'}</td><td><strong>Yetki Bit.:</strong></td><td>${r.authEnd || '-'}</td></tr>
+                </table>
+            </div>`;
+        }
 
         let featsHtml = '';
         featsHtml += renderFeatureGroup('Cephe & Manzara', '✔', [...r.facade, ...r.views]);
@@ -529,6 +514,8 @@
 
         let html = `
             <div class="container-fluid">
+                ${adminHtml}
+
                 <div class="row">
                     <div class="col-md-5 d-flex flex-column">
                         ${photoHtml}
@@ -546,15 +533,13 @@
         new bootstrap.Modal(document.getElementById('viewModal')).show();
     }
 
-    // --- YAZDIRMA (İPAD FIX v2) ---
-    function printRecord() {
-        window.print();
-    }
+    function printRecord() { window.print(); }
 
     function shareRecordCurrent() {
         let db = JSON.parse(localStorage.getItem('emlakPortfoyDB')) || [];
         let r = db.find(x => x.id === currentViewId);
         if(!r) return;
+        // WHATSAPP PAYLAŞIMINDA GİZLİ BİLGİLER YOK
         let allFeat = [...r.facade, ...r.featIn, ...r.featOut].slice(0, 5).join(', ');
         if(allFeat.length > 0) allFeat += '...';
         let text = `🏠 *${r.title}*\n📍 *Konum:* ${r.district} / ${r.neighborhood}\n💰 *Fiyat:* ${formatDisplayPrice(r.price)} ${r.currency}\n🏗️ *Tip:* ${r.housingDetail || r.propType} | ${r.rooms}\n📏 *m²:* ${r.grossM2}\n✅ *Özellikler:* ${allFeat}\n📞 Detaylar için arayınız!`;
@@ -567,6 +552,10 @@
         if(!r) return;
         let trigger = new bootstrap.Tab(document.querySelector('#mainTab button[data-bs-target="#tab-identity"]')); trigger.show();
         document.getElementById('recordId').value = r.id;
+        
+        // GİZLİ ALANLARI GERİ ÇAĞIR
+        setVal('ownerName', r.ownerName); setVal('ownerTel', r.ownerTel); setVal('authStart', r.authStart); setVal('authEnd', r.authEnd);
+
         setVal('title', r.title); setVal('desc', r.desc); setVal('price', r.price); setVal('currency', r.currency);
         setVal('adType', r.adType); setVal('propType', r.propType); setVal('grossM2', r.grossM2); setVal('netM2', r.netM2); 
         setVal('rooms', r.rooms); setVal('age', r.age); setVal('floorCurr', r.floorCurr); setVal('floorTotal', r.floorTotal); 
