@@ -3,37 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profesyonel Emlak Yöneticisi v2.0</title>
+    <title>Emlak Portföy Yöneticisi v3.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
-        .nav-pills .nav-link.active { background-color: #0d6efd; }
-        .card { border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-radius: 10px; }
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+        .nav-pills .nav-link.active { background-color: #0d6efd; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .form-section-title { font-weight: 600; color: #495057; border-bottom: 2px solid #e9ecef; padding-bottom: 5px; margin-bottom: 15px; margin-top: 15px; }
         #map { height: 300px; width: 100%; border-radius: 8px; }
-        .preview-img { max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid #ddd; display: none; margin-top: 10px; }
-        .feature-group-title { font-weight: bold; color: #555; border-bottom: 2px solid #eee; padding-bottom: 5px; margin-bottom: 10px; margin-top: 20px; }
+        .preview-img { max-width: 100%; max-height: 250px; border-radius: 8px; display: none; margin-top: 10px; border: 2px solid #ddd; }
     </style>
 </head>
 <body>
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-primary">🏠 Emlak Portföy Yöneticisi</h2>
+        <h2 class="text-primary fw-bold">🏠 Portföy Yöneticisi</h2>
         <div>
-            <button class="btn btn-outline-success btn-sm" onclick="exportData()">💾 Yedek Al</button>
+            <button class="btn btn-outline-success btn-sm" onclick="exportData()">💾 Yedeği İndir</button>
             <input type="file" id="importFile" style="display:none" onchange="importData(this)">
             <button class="btn btn-outline-warning btn-sm" onclick="document.getElementById('importFile').click()">📂 Yedek Yükle</button>
         </div>
     </div>
 
-    <ul class="nav nav-pills mb-3 nav-justified" id="mainTab" role="tablist">
-        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-identity">1. İlan Kimliği</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-tech">2. Teknik Detay</button></li>
+    <ul class="nav nav-pills mb-4 nav-justified" id="mainTab" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-identity">1. Kimlik</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-tech">2. Teknik & Tapu</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-loc" onclick="resizeMap()">3. Konum</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-features">4. Özellikler</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-media">5. Medya</button></li>
-        <li class="nav-item"><button class="nav-link bg-dark text-white" data-bs-toggle="pill" data-bs-target="#tab-list" onclick="loadList()">📋 Checklist & Liste</button></li>
+        <li class="nav-item"><button class="nav-link bg-dark text-white" data-bs-toggle="pill" data-bs-target="#tab-list" onclick="loadList()">📋 Liste & Paylaş</button></li>
     </ul>
 
     <div class="tab-content">
@@ -42,6 +42,7 @@
             <form id="emlakForm">
                 <input type="hidden" id="recordId">
                 <div class="card p-4">
+                    <h5 class="form-section-title">Temel Bilgiler</h5>
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label fw-bold">İlan Başlığı</label>
@@ -72,15 +73,13 @@
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Konut Tipi</label>
+                            <label class="form-label">Kategori</label>
                             <select class="form-select" id="propType">
                                 <option>Daire</option>
                                 <option>Villa</option>
-                                <option>Rezidans</option>
-                                <option>Müstakil Ev</option>
-                                <option>Yazlık</option>
                                 <option>Arsa</option>
                                 <option>İşyeri</option>
+                                <option>Müstakil</option>
                             </select>
                         </div>
                     </div>
@@ -89,11 +88,12 @@
 
         <div class="tab-pane fade" id="tab-tech">
             <div class="card p-4">
+                
+                <h5 class="form-section-title">📏 Teknik Detaylar</h5>
                 <div class="row g-3">
                     <div class="col-md-3"><label>Brüt m²</label><input type="number" class="form-control" id="grossM2"></div>
                     <div class="col-md-3"><label>Net m²</label><input type="number" class="form-control" id="netM2"></div>
-                    <div class="col-md-3">
-                        <label>Oda Sayısı</label>
+                    <div class="col-md-3"><label>Oda Sayısı</label>
                         <select class="form-select" id="rooms">
                             <option>1+1</option><option>2+1</option><option>3+1</option><option>4+1</option><option>5+1</option><option>Stüdyo</option>
                         </select>
@@ -103,25 +103,43 @@
                             <option>0 (Yeni)</option><option>1-5</option><option>5-10</option><option>11-20</option><option>21+</option>
                         </select>
                     </div>
-                    
                     <div class="col-md-3"><label>Bulunduğu Kat</label><input type="text" class="form-control" id="floorCurr"></div>
                     <div class="col-md-3"><label>Kat Sayısı</label><input type="number" class="form-control" id="floorTotal"></div>
-                    <div class="col-md-3"><label>Banyo Sayısı</label><input type="number" class="form-control" id="bath" value="1"></div>
                     <div class="col-md-3"><label>Isıtma</label>
                         <select class="form-select" id="heating">
-                            <option>Klima</option><option>Kombi (D.Gaz)</option><option>Merkezi</option><option>Yerden Isıtma</option><option>Soba</option><option>Yok</option>
+                            <option>Klima</option><option>Kombi</option><option>Merkezi</option><option>Yerden Isıtma</option><option>Yok</option>
                         </select>
                     </div>
+                     <div class="col-md-3"><label>Banyo Sayısı</label><input type="number" class="form-control" id="bath" value="1"></div>
+                </div>
 
-                    <div class="col-md-3"><label>Aidat (TL)</label><input type="number" class="form-control" id="dues"></div>
+                <h5 class="form-section-title mt-4">📜 Tapu & Yasal Durum</h5>
+                <div class="row g-3">
+                    <div class="col-md-3"><label>Ada No</label><input type="number" class="form-control" id="adaNo"></div>
+                    <div class="col-md-3"><label>Parsel No</label><input type="number" class="form-control" id="parselNo"></div>
+                    <div class="col-md-6"><label>Tapu Durumu</label>
+                        <select class="form-select" id="tapuStatus">
+                            <option>Kat Mülkiyeti</option>
+                            <option>Kat İrtifakı</option>
+                            <option>Arsa Paylı</option>
+                            <option>Müstakil Tapu</option>
+                            <option>Hisseli</option>
+                            <option>Zilliyet</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h5 class="form-section-title mt-4">💰 Finansal Bilgiler</h5>
+                <div class="row g-3">
                     <div class="col-md-3"><label>Krediye Uygun?</label>
                         <select class="form-select" id="credit"><option>Evet</option><option>Hayır</option></select>
                     </div>
                     <div class="col-md-3"><label>Takas?</label>
                         <select class="form-select" id="swap"><option>Hayır</option><option>Evet</option></select>
                     </div>
-                    <div class="col-md-3"><label>Eşyalı?</label>
-                        <select class="form-select" id="furnished"><option>Hayır</option><option>Evet</option></select>
+                    <div class="col-md-3"><label>Kira Getirisi (TL)</label><input type="number" class="form-control" id="rentalIncome"></div>
+                    <div class="col-md-3"><label>Devren?</label>
+                        <select class="form-select" id="devren"><option>Hayır</option><option>Evet</option></select>
                     </div>
                 </div>
             </div>
@@ -146,38 +164,48 @@
         <div class="tab-pane fade" id="tab-features">
             <div class="card p-4">
                 
-                <h6 class="feature-group-title">🧭 Cephe Seçimi</h6>
-                <div class="btn-group" role="group">
-                    <input type="checkbox" class="btn-check facade-check" id="f_kuzey" value="Kuzey" autocomplete="off"><label class="btn btn-outline-secondary" for="f_kuzey">Kuzey</label>
-                    <input type="checkbox" class="btn-check facade-check" id="f_guney" value="Güney" autocomplete="off"><label class="btn btn-outline-secondary" for="f_guney">Güney</label>
-                    <input type="checkbox" class="btn-check facade-check" id="f_dogu" value="Doğu" autocomplete="off"><label class="btn btn-outline-secondary" for="f_dogu">Doğu</label>
-                    <input type="checkbox" class="btn-check facade-check" id="f_bati" value="Batı" autocomplete="off"><label class="btn btn-outline-secondary" for="f_bati">Batı</label>
+                <h6 class="form-section-title">🧭 Cephe ve Manzara</h6>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="fw-bold d-block mb-2">Cephe</label>
+                        <div class="btn-group" role="group">
+                            <input type="checkbox" class="btn-check facade-check" id="f_kuzey" value="Kuzey" autocomplete="off"><label class="btn btn-outline-secondary" for="f_kuzey">Kuzey</label>
+                            <input type="checkbox" class="btn-check facade-check" id="f_guney" value="Güney" autocomplete="off"><label class="btn btn-outline-secondary" for="f_guney">Güney</label>
+                            <input type="checkbox" class="btn-check facade-check" id="f_dogu" value="Doğu" autocomplete="off"><label class="btn btn-outline-secondary" for="f_dogu">Doğu</label>
+                            <input type="checkbox" class="btn-check facade-check" id="f_bati" value="Batı" autocomplete="off"><label class="btn btn-outline-secondary" for="f_bati">Batı</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                         <label class="fw-bold d-block mb-2">Manzara</label>
+                         <div class="row">
+                             <div class="col-6"><div class="form-check"><input class="form-check-input view-check" type="checkbox" value="Deniz"><label>Deniz</label></div></div>
+                             <div class="col-6"><div class="form-check"><input class="form-check-input view-check" type="checkbox" value="Doğa"><label>Doğa</label></div></div>
+                             <div class="col-6"><div class="form-check"><input class="form-check-input view-check" type="checkbox" value="Şehir"><label>Şehir</label></div></div>
+                         </div>
+                    </div>
                 </div>
 
                 <div class="row mt-3">
                     <div class="col-md-4">
-                        <h6 class="feature-group-title">🏠 İç Özellikler</h6>
+                        <h6 class="form-section-title">🏠 İç Özellikler</h6>
                         <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Çelik Kapı"><label>Çelik Kapı</label></div>
                         <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Duşakabin"><label>Duşakabin</label></div>
                         <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Ebeveyn Banyosu"><label>Ebeveyn Banyosu</label></div>
                         <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Ankastre Set"><label>Ankastre Set</label></div>
-                        <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Klima"><label>Klima</label></div>
                     </div>
                     <div class="col-md-4">
-                        <h6 class="feature-group-title">🏢 Dış & Site</h6>
+                        <h6 class="form-section-title">🏢 Dış & Site</h6>
                         <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Asansör"><label>Asansör</label></div>
                         <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Otopark"><label>Otopark</label></div>
                         <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Güvenlik"><label>Güvenlik</label></div>
                         <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Havuz"><label>Havuz</label></div>
-                        <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Jeneratör"><label>Jeneratör</label></div>
                     </div>
                     <div class="col-md-4">
-                        <h6 class="feature-group-title">📍 Muhit & Ulaşım</h6>
+                        <h6 class="form-section-title">📍 Muhit & Ulaşım</h6>
                         <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Metroya Yakın"><label>Metroya Yakın</label></div>
                         <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Otobüs Durağı"><label>Otobüs Durağı</label></div>
                         <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Market"><label>Market / AVM</label></div>
                         <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Okul"><label>Okul</label></div>
-                        <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Deniz Manzaralı"><label>Deniz Manzaralı</label></div>
                     </div>
                 </div>
             </div>
@@ -186,21 +214,23 @@
         <div class="tab-pane fade" id="tab-media">
             <div class="card p-4 text-center">
                 <h5>📸 Vitrin Fotoğrafı</h5>
-                <p class="text-muted small">Yüklenen fotoğraflar sistemin hızlı çalışması için otomatik olarak sıkıştırılır (Max 800px).</p>
+                <div class="alert alert-info small">
+                    Fotoğraflar <strong>oturum süresince</strong> (sayfa yenilenene kadar) görünür. Metin bilgileriniz ise kalıcı olarak kaydedilir.
+                </div>
                 <input type="file" class="form-control" id="photoInput" accept="image/*" onchange="previewPhoto()">
                 <img id="photoPreview" class="preview-img mx-auto">
                 <input type="hidden" id="photoBase64">
             </div>
             <div class="d-grid gap-2 mt-4">
                 <button type="button" class="btn btn-success btn-lg" onclick="saveRecord()">✅ KAYDET</button>
-                <button type="button" class="btn btn-secondary" onclick="clearForm()">Temizle</button>
+                <button type="button" class="btn btn-secondary" onclick="clearForm()">Formu Temizle</button>
             </div>
         </div>
         </form>
 
         <div class="tab-pane fade" id="tab-list">
             <div class="card p-3">
-                <h5 class="mb-3">📋 Kayıtlı Portföy Listesi</h5>
+                <h5 class="mb-3">📋 Kayıtlı Portföyler</h5>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead class="table-light">
@@ -240,6 +270,10 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+    // --- GÖRSEL HAFIZASI (Sadece Oturum İçin) ---
+    // Bu obje sayfayı yenileyince sıfırlanır
+    let sessionImages = {}; 
+
     // --- HARİTA ---
     var map = L.map('map').setView([39.92, 32.85], 6);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -281,52 +315,18 @@
         } catch(e) {}
     }
 
-    // --- FOTOĞRAF KÜÇÜLTME (Canvas Logic) ---
+    // --- FOTOĞRAF ÖNİZLEME ---
     function previewPhoto() {
         const file = document.getElementById('photoInput').files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = new Image();
-            img.onload = function() {
-                // 1. Hedef Boyutları Belirle (Max 800px)
-                const maxWidth = 800;
-                const maxHeight = 800;
-                let width = img.width;
-                let height = img.height;
-
-                // Oranı koruyarak yeni boyutları hesapla
-                if (width > height) {
-                    if (width > maxWidth) {
-                        height *= maxWidth / width;
-                        width = maxWidth;
-                    }
-                } else {
-                    if (height > maxHeight) {
-                        width *= maxHeight / height;
-                        height = maxHeight;
-                    }
-                }
-
-                // 2. Canvas (Tuval) Oluştur ve Resmi Çiz
-                const canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-
-                // 3. Veriyi Sıkıştırılmış Olarak Al (JPEG, %70 Kalite)
-                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-
-                // 4. Ekranda Göster ve Hafızaya Kaydetmek İçin Hazırla
-                document.getElementById('photoPreview').src = compressedDataUrl;
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('photoPreview').src = e.target.result;
                 document.getElementById('photoPreview').style.display = 'block';
-                document.getElementById('photoBase64').value = compressedDataUrl;
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+                document.getElementById('photoBase64').value = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
     }
 
     // --- VERİTABANI VE CRUD ---
@@ -336,26 +336,38 @@
 
     function saveRecord() {
         const id = document.getElementById('recordId').value || 'ID'+Date.now();
+        
+        // 1. Yazısal Veriler (LocalStorage'a gider - Kalıcı)
         const record = {
             id,
             title: getVal('title'), desc: getVal('desc'), price: getVal('price'), currency: getVal('currency'),
             adType: getVal('adType'), propType: getVal('propType'),
             grossM2: getVal('grossM2'), netM2: getVal('netM2'), rooms: getVal('rooms'), age: getVal('age'),
             floorCurr: getVal('floorCurr'), floorTotal: getVal('floorTotal'), bath: getVal('bath'), heating: getVal('heating'),
-            dues: getVal('dues'), credit: getVal('credit'), swap: getVal('swap'), furnished: getVal('furnished'),
+            // Yeni Alanlar
+            adaNo: getVal('adaNo'), parselNo: getVal('parselNo'), tapuStatus: getVal('tapuStatus'),
+            credit: getVal('credit'), swap: getVal('swap'), rentalIncome: getVal('rentalIncome'), devren: getVal('devren'),
+            
             city: getVal('city'), district: getVal('district'), neighborhood: getVal('neighborhood'),
             lat: getVal('lat'), lng: getVal('lng'),
+            
             facade: getChecks('facade-check'),
-            featIn: getChecks('feat-in'), featOut: getChecks('feat-out'), featLoc: getChecks('feat-loc'),
-            photo: document.getElementById('photoBase64').value
+            views: getChecks('view-check'),
+            featIn: getChecks('feat-in'), featOut: getChecks('feat-out'), featLoc: getChecks('feat-loc')
         };
+
+        // 2. Fotoğraf (Session Değişkenine gider - Geçici)
+        const photoData = document.getElementById('photoBase64').value;
+        if(photoData) {
+            sessionImages[id] = photoData;
+        }
 
         let db = JSON.parse(localStorage.getItem('emlakPortfoyDB')) || [];
         const idx = db.findIndex(r => r.id === id);
         if(idx > -1) db[idx] = record; else db.push(record);
         
         localStorage.setItem('emlakPortfoyDB', JSON.stringify(db));
-        alert('Kayıt Başarılı! ✅');
+        alert('Kayıt Başarılı! ✅\n(Not: Fotoğraflar sayfayı yenileyene kadar görünür)');
         clearForm();
         loadList();
     }
@@ -366,7 +378,10 @@
         let db = JSON.parse(localStorage.getItem('emlakPortfoyDB')) || [];
 
         db.forEach(r => {
-            let thumb = r.photo ? `<img src="${r.photo}" style="width:50px; height:40px; object-fit:cover; border-radius:4px;">` : '🏠';
+            // Görseli sessionImages'dan çek, yoksa ikon göster
+            let imgData = sessionImages[r.id];
+            let thumb = imgData ? `<img src="${imgData}" style="width:50px; height:40px; object-fit:cover; border-radius:4px;">` : '📄';
+            
             let row = `<tr>
                 <td>${thumb}</td>
                 <td><strong>${r.title}</strong><br><small class="text-muted">${r.adType} ${r.propType}</small></td>
@@ -385,27 +400,28 @@
         });
     }
 
-    // --- ÖZEL FONKSİYONLAR: GÖRÜNTÜLE & PAYLAŞ ---
     function viewRecord(id) {
         let db = JSON.parse(localStorage.getItem('emlakPortfoyDB')) || [];
         let r = db.find(x => x.id === id);
         if(!r) return;
 
         document.getElementById('viewTitle').innerText = r.title;
-        let photoHtml = r.photo ? `<img src="${r.photo}" class="img-fluid rounded mb-3" style="max-height:300px;">` : '';
+        let imgData = sessionImages[r.id];
+        let photoHtml = imgData ? `<img src="${imgData}" class="img-fluid rounded mb-3" style="max-height:300px;">` : '<div class="alert alert-warning">Fotoğraf yok veya oturum yenilendiği için silindi.</div>';
         
         let html = `
             ${photoHtml}
             <div class="row">
                 <div class="col-6"><strong>Fiyat:</strong> ${r.price} ${r.currency}</div>
-                <div class="col-6"><strong>Tip:</strong> ${r.adType} / ${r.propType}</div>
+                <div class="col-6"><strong>Konum:</strong> ${r.city}/${r.district}</div>
+                <div class="col-12"><hr></div>
                 <div class="col-6"><strong>Oda:</strong> ${r.rooms}</div>
-                <div class="col-6"><strong>m² (Brüt/Net):</strong> ${r.grossM2} / ${r.netM2}</div>
-                <div class="col-6"><strong>Kat:</strong> ${r.floorCurr} / ${r.floorTotal}</div>
-                <div class="col-6"><strong>Isıtma:</strong> ${r.heating}</div>
-                <div class="col-12 mt-2"><strong>Adres:</strong> ${r.city} / ${r.district} / ${r.neighborhood}</div>
-                <div class="col-12 mt-2"><div class="p-2 bg-light border rounded"><strong>Özellikler:</strong><br>
-                ${[...r.facade, ...r.featIn, ...r.featOut].join(', ')}</div></div>
+                <div class="col-6"><strong>m²:</strong> ${r.grossM2} Brüt / ${r.netM2} Net</div>
+                <div class="col-6"><strong>Ada/Parsel:</strong> ${r.adaNo} / ${r.parselNo}</div>
+                <div class="col-6"><strong>Tapu:</strong> ${r.tapuStatus}</div>
+                <div class="col-12"><hr></div>
+                <div class="col-12"><strong>Özellikler:</strong><br>
+                ${[...r.facade, ...r.views, ...r.featIn, ...r.featOut].join(', ')}</div>
             </div>
         `;
         document.getElementById('viewBody').innerHTML = html;
@@ -417,20 +433,17 @@
         let r = db.find(x => x.id === id);
         if(!r) return;
 
-        // WhatsApp Formatı
-        let text = `🏠 *${r.title}*\n\n` +
+        let text = `🏠 *${r.title}*\n` +
+                   `📍 ${r.city} / ${r.district} / ${r.neighborhood}\n` +
                    `💰 *Fiyat:* ${r.price} ${r.currency}\n` +
-                   `📍 *Konum:* ${r.city} / ${r.district} / ${r.neighborhood}\n` +
-                   `📐 *Bilgiler:* ${r.propType}, ${r.rooms}, ${r.grossM2}m²\n` +
-                   `🏗️ *Kat:* ${r.floorCurr}. Kat (Top: ${r.floorTotal})\n` +
-                   `🔥 *Isıtma:* ${r.heating}\n\n` +
-                   `✨ *Öne Çıkan Özellikler:* ${r.featIn.slice(0,3).join(', ')} ${r.featOut.includes('Asansör') ? ', Asansör' : ''}\n\n` +
-                   `📞 *İletişim:* Detaylar için arayınız!`;
+                   `📏 *Bilgiler:* ${r.rooms}, ${r.grossM2}m², ${r.floorCurr}. Kat\n` +
+                   `📜 *Tapu:* ${r.tapuStatus}, Ada: ${r.adaNo}, Parsel: ${r.parselNo}\n` +
+                   `🧭 *Cephe:* ${r.facade.join(', ')}\n` +
+                   `✨ *Özellikler:* ${r.featIn.slice(0,3).join(', ')}...\n` +
+                   `📞 Detaylar için arayınız!`;
 
         navigator.clipboard.writeText(text).then(() => {
-            alert("İlan bilgileri kopyalandı! WhatsApp'a yapıştırabilirsin. 📋✅");
-        }).catch(err => {
-            alert("Kopyalama başarısız oldu: " + err);
+            alert("İlan bilgileri kopyalandı! WhatsApp'a yapıştırabilirsin. 📋");
         });
     }
 
@@ -439,34 +452,27 @@
         let r = db.find(x => x.id === id);
         if(!r) return;
 
-        // Sekmeyi Form'a Çevir
         let trigger = new bootstrap.Tab(document.querySelector('#mainTab button[data-bs-target="#tab-identity"]'));
         trigger.show();
 
         document.getElementById('recordId').value = r.id;
-        setVal('title', r.title); setVal('desc', r.desc); setVal('price', r.price); setVal('currency', r.currency);
-        setVal('adType', r.adType); setVal('propType', r.propType);
-        setVal('grossM2', r.grossM2); setVal('netM2', r.netM2); setVal('rooms', r.rooms); setVal('age', r.age);
-        setVal('floorCurr', r.floorCurr); setVal('floorTotal', r.floorTotal); setVal('bath', r.bath); setVal('heating', r.heating);
-        setVal('dues', r.dues); setVal('credit', r.credit); setVal('swap', r.swap); setVal('furnished', r.furnished);
-        setVal('city', r.city); setVal('district', r.district); setVal('neighborhood', r.neighborhood);
-        setVal('lat', r.lat); setVal('lng', r.lng);
-
-        // Checkboxları temizle ve doldur
+        // Tüm alanları doldur (Örnek bazıları)
+        setVal('title', r.title); setVal('desc', r.desc); setVal('price', r.price);
+        setVal('adaNo', r.adaNo); setVal('parselNo', r.parselNo); setVal('tapuStatus', r.tapuStatus);
+        
+        // Checkboxları işaretle
         document.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false);
-        [...r.facade, ...r.featIn, ...r.featOut, ...r.featLoc].forEach(val => {
+        [...r.facade, ...r.views, ...r.featIn].forEach(val => {
             let el = document.querySelector(`input[value="${val}"]`);
             if(el) el.checked = true;
         });
-
-        // Fotoğraf
-        if(r.photo) {
-            document.getElementById('photoPreview').src = r.photo;
+        
+        // Fotoğraf varsa göster
+        if(sessionImages[r.id]){
+            document.getElementById('photoPreview').src = sessionImages[r.id];
             document.getElementById('photoPreview').style.display = 'block';
-            document.getElementById('photoBase64').value = r.photo;
+            document.getElementById('photoBase64').value = sessionImages[r.id];
         }
-
-        if(r.lat) { setTimeout(() => { setMarker(r.lat, r.lng); map.setView([r.lat, r.lng], 15); }, 500); }
     }
 
     function deleteRecord(id) {
@@ -474,6 +480,7 @@
             let db = JSON.parse(localStorage.getItem('emlakPortfoyDB')) || [];
             db = db.filter(x => x.id !== id);
             localStorage.setItem('emlakPortfoyDB', JSON.stringify(db));
+            delete sessionImages[id]; // Geçici fotoyu da sil
             loadList();
         }
     }
@@ -486,7 +493,7 @@
         if(marker) map.removeLayer(marker);
     }
     
-    // YEDEKLEME
+    // YEDEKLEME (Sadece Yazısal Veriler)
     function exportData() {
         let data = localStorage.getItem('emlakPortfoyDB');
         let blob = new Blob([data], {type: 'application/json'});
