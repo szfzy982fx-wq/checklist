@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emlak Portföy Yöneticisi v3.3</title>
+    <title>Emlak Portföy Yöneticisi v3.5</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -19,17 +20,19 @@
         .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
         
         /* Belge (View) Modu Stilleri */
-        .doc-label { font-weight: 600; color: #555; }
-        .doc-value { color: #000; }
-        .feature-tag { display: inline-block; background: #e9ecef; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; margin: 2px; color: #333; }
-        .doc-price { font-size: 1.5rem; color: #198754; font-weight: bold; }
+        .doc-label { font-weight: 600; color: #555; font-size: 0.95rem; }
+        .doc-value { color: #000; font-weight: 500; }
+        .feature-group-header { font-size: 0.9rem; font-weight: bold; color: #0d6efd; border-bottom: 1px solid #dee2e6; margin-top: 10px; margin-bottom: 5px; padding-bottom: 2px; }
+        .feature-tag { display: inline-block; font-size: 0.85rem; margin-right: 8px; margin-bottom: 2px; color: #444; }
+        .doc-price { font-size: 1.6rem; color: #198754; font-weight: bold; letter-spacing: -0.5px; }
+        .desc-box { background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; font-size: 0.9rem; height: 100%; }
     </style>
 </head>
 <body>
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-primary fw-bold">🏠 Portföy Yöneticisi v3.3</h2>
+        <h2 class="text-primary fw-bold">🏠 Portföy Yöneticisi v3.5</h2>
         <div>
             <button class="btn btn-outline-success btn-sm" onclick="exportData()">💾 Yedeği İndir</button>
             <input type="file" id="importFile" style="display:none" onchange="importData(this)">
@@ -64,7 +67,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Fiyat</label>
-                            <input type="text" class="form-control" id="price" onkeyup="formatCurrency(this)" placeholder="0">
+                            <input type="text" class="form-control" id="price" onkeyup="formatInput(this)" placeholder="0">
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Birim</label>
@@ -202,8 +205,8 @@
                     <div class="col-md-3"><label>Takas?</label>
                         <select class="form-select" id="swap"><option>Hayır</option><option>Evet</option></select>
                     </div>
-                    <div class="col-md-3"><label>Kira Getirisi (TL)</label><input type="text" class="form-control" id="rentalIncome" onkeyup="formatCurrency(this)"></div>
-                    <div class="col-md-3"><label>Aidat (TL)</label><input type="text" class="form-control" id="dues" onkeyup="formatCurrency(this)"></div>
+                    <div class="col-md-3"><label>Kira Getirisi (TL)</label><input type="text" class="form-control" id="rentalIncome" onkeyup="formatInput(this)"></div>
+                    <div class="col-md-3"><label>Aidat (TL)</label><input type="text" class="form-control" id="dues" onkeyup="formatInput(this)"></div>
                     <div class="col-md-3"><label>Devren?</label>
                         <select class="form-select" id="devren"><option>Hayır</option><option>Evet</option></select>
                     </div>
@@ -229,7 +232,6 @@
 
         <div class="tab-pane fade" id="tab-features">
             <div class="card p-4">
-                
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <h6 class="fw-bold">🧭 Cephe</h6>
@@ -251,119 +253,89 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="accordion" id="featuresAccordion">
                     <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-                                🏠 İç Özellikler
-                            </button>
-                        </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#featuresAccordion">
-                            <div class="accordion-body feature-grid">
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Çelik Kapı"><label>Çelik Kapı</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Duşakabin"><label>Duşakabin</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Ebeveyn Banyosu"><label>Ebeveyn Banyosu</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Giyinme Odası"><label>Giyinme Odası</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Kiler"><label>Kiler</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Jakuzi"><label>Jakuzi</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Şömine"><label>Şömine</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Ankastre Set"><label>Ankastre Set</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Klima"><label>Klima</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Çamaşır Odası"><label>Çamaşır Odası</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Vestiyer"><label>Vestiyer</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Görüntülü Diafon"><label>Görüntülü Diafon</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Panjur"><label>Panjur</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Parke Zemin"><label>Parke Zemin</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Seramik Zemin"><label>Seramik Zemin</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Spot Aydınlatma"><label>Spot Aydınlatma</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Teras"><label>Teras</label></div>
-                                <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Balkon"><label>Balkon</label></div>
-                            </div>
-                        </div>
+                        <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#c1">🏠 İç Özellikler</button></h2>
+                        <div id="c1" class="accordion-collapse collapse show"><div class="accordion-body feature-grid">
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Çelik Kapı"><label>Çelik Kapı</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Duşakabin"><label>Duşakabin</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Ebeveyn Banyosu"><label>Ebeveyn Banyosu</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Giyinme Odası"><label>Giyinme Odası</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Kiler"><label>Kiler</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Jakuzi"><label>Jakuzi</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Şömine"><label>Şömine</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Ankastre Set"><label>Ankastre Set</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Klima"><label>Klima</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Çamaşır Odası"><label>Çamaşır Odası</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Vestiyer"><label>Vestiyer</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Görüntülü Diafon"><label>Görüntülü Diafon</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Panjur"><label>Panjur</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Parke Zemin"><label>Parke Zemin</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Seramik Zemin"><label>Seramik Zemin</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Spot Aydınlatma"><label>Spot Aydınlatma</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Teras"><label>Teras</label></div>
+                            <div class="form-check"><input class="form-check-input feat-in" type="checkbox" value="Balkon"><label>Balkon</label></div>
+                        </div></div>
                     </div>
-
                     <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-                                🏢 Dış & Site Özellikleri
-                            </button>
-                        </h2>
-                        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#featuresAccordion">
-                            <div class="accordion-body feature-grid">
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Asansör"><label>Asansör</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Yük Asansörü"><label>Yük Asansörü</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Kapalı Otopark"><label>Kapalı Otopark</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Açık Otopark"><label>Açık Otopark</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Güvenlik"><label>Güvenlik</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Kamera Sistemi"><label>Kamera Sistemi</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Yüzme Havuzu (Açık)"><label>Yüzme Havuzu (Açık)</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Yüzme Havuzu (Kapalı)"><label>Yüzme Havuzu (Kapalı)</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Çocuk Parkı"><label>Çocuk Parkı</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Jeneratör"><label>Jeneratör</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Su Deposu"><label>Su Deposu</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Hidrofor"><label>Hidrofor</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Yangın Merdiveni"><label>Yangın Merdiveni</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Kapıcı"><label>Kapıcı</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Tenis Kortu"><label>Tenis Kortu</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Basketbol Sahası"><label>Basketbol Sahası</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Fitness/Spor Salonu"><label>Fitness</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Sauna/Hamam"><label>Sauna/Hamam</label></div>
-                                <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Kamelya"><label>Kamelya</label></div>
-                            </div>
-                        </div>
+                        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c2">🏢 Dış & Site</button></h2>
+                        <div id="c2" class="accordion-collapse collapse"><div class="accordion-body feature-grid">
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Asansör"><label>Asansör</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Yük Asansörü"><label>Yük Asansörü</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Kapalı Otopark"><label>Kapalı Otopark</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Açık Otopark"><label>Açık Otopark</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Güvenlik"><label>Güvenlik</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Kamera Sistemi"><label>Kamera Sistemi</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Havuz (Açık)"><label>Havuz (Açık)</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Havuz (Kapalı)"><label>Havuz (Kapalı)</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Çocuk Parkı"><label>Çocuk Parkı</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Jeneratör"><label>Jeneratör</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Su Deposu"><label>Su Deposu</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Hidrofor"><label>Hidrofor</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Yangın Merdiveni"><label>Yangın Merdiveni</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Kapıcı"><label>Kapıcı</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Tenis Kortu"><label>Tenis Kortu</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Basketbol Sahası"><label>Basketbol Sahası</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Fitness"><label>Fitness</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Sauna/Hamam"><label>Sauna/Hamam</label></div>
+                            <div class="form-check"><input class="form-check-input feat-out" type="checkbox" value="Kamelya"><label>Kamelya</label></div>
+                        </div></div>
                     </div>
-
                     <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
-                                📍 Muhit
-                            </button>
-                        </h2>
-                        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#featuresAccordion">
-                            <div class="accordion-body feature-grid">
-                                <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="AVM"><label>AVM</label></div>
-                                <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Market"><label>Market</label></div>
-                                <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Semt Pazarı"><label>Semt Pazarı</label></div>
-                                <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Üniversite"><label>Üniversite</label></div>
-                                <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Lise"><label>Lise</label></div>
-                                <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="İlkokul-Ortaokul"><label>İlkokul</label></div>
-                                <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Hastane"><label>Hastane</label></div>
-                                <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Sağlık Ocağı"><label>Sağlık Ocağı</label></div>
-                                <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Eczane"><label>Eczane</label></div>
-                                <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Cami"><label>Cami</label></div>
-                                <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Park"><label>Park</label></div>
-                                <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Polis Merkezi"><label>Polis Merkezi</label></div>
-                                <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Şehir Merkezi"><label>Şehir Merkezi</label></div>
-                            </div>
-                        </div>
+                        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c3">📍 Muhit</button></h2>
+                        <div id="c3" class="accordion-collapse collapse"><div class="accordion-body feature-grid">
+                            <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="AVM"><label>AVM</label></div>
+                            <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Market"><label>Market</label></div>
+                            <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Semt Pazarı"><label>Semt Pazarı</label></div>
+                            <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Üniversite"><label>Üniversite</label></div>
+                            <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Lise"><label>Lise</label></div>
+                            <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="İlkokul"><label>İlkokul</label></div>
+                            <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Hastane"><label>Hastane</label></div>
+                            <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Eczane"><label>Eczane</label></div>
+                            <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Cami"><label>Cami</label></div>
+                            <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Park"><label>Park</label></div>
+                            <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Polis Merkezi"><label>Polis Merkezi</label></div>
+                            <div class="form-check"><input class="form-check-input feat-loc" type="checkbox" value="Şehir Merkezi"><label>Şehir Merkezi</label></div>
+                        </div></div>
                     </div>
-
                     <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">
-                                🚍 Ulaşım
-                            </button>
-                        </h2>
-                        <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#featuresAccordion">
-                            <div class="accordion-body feature-grid">
-                                <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Metro"><label>Metro</label></div>
-                                <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Metrobüs"><label>Metrobüs</label></div>
-                                <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Marmaray"><label>Marmaray</label></div>
-                                <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Tramvay"><label>Tramvay</label></div>
-                                <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Otobüs Durağı"><label>Otobüs Durağı</label></div>
-                                <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Minibüs/Dolmuş"><label>Minibüs</label></div>
-                                <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Teleferik"><label>Teleferik</label></div>
-                                <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Havaalanı"><label>Havaalanı</label></div>
-                                <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="TEM Otoyolu"><label>TEM</label></div>
-                                <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="E-5 Karayolu"><label>E-5</label></div>
-                                <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="İskele"><label>İskele</label></div>
-                                <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Avrasya Tüneli"><label>Avrasya Tüneli</label></div>
-                                <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Boğaz Köprüleri"><label>Köprüler</label></div>
-                            </div>
-                        </div>
+                        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c4">🚍 Ulaşım</button></h2>
+                        <div id="c4" class="accordion-collapse collapse"><div class="accordion-body feature-grid">
+                            <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Metro"><label>Metro</label></div>
+                            <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Metrobüs"><label>Metrobüs</label></div>
+                            <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Marmaray"><label>Marmaray</label></div>
+                            <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Tramvay"><label>Tramvay</label></div>
+                            <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Otobüs Durağı"><label>Otobüs Durağı</label></div>
+                            <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Minibüs"><label>Minibüs</label></div>
+                            <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Teleferik"><label>Teleferik</label></div>
+                            <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Havaalanı"><label>Havaalanı</label></div>
+                            <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="TEM"><label>TEM</label></div>
+                            <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="E-5"><label>E-5</label></div>
+                            <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="İskele"><label>İskele</label></div>
+                            <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Avrasya Tüneli"><label>Avrasya Tüneli</label></div>
+                            <div class="form-check"><input class="form-check-input feat-trans" type="checkbox" value="Köprüler"><label>Köprüler</label></div>
+                        </div></div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -412,11 +384,10 @@
                 <h5 class="modal-title">İlan Belgesi</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4" id="viewBody">
-                </div>
+            <div class="modal-body p-4" id="viewBody"></div>
             <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-primary" onclick="printRecord()">🖨️ Yazdır / PDF Kaydet</button>
-                <button type="button" class="btn btn-success" onclick="shareRecordCurrent()">📤 WhatsApp Metni</button>
+                <button type="button" class="btn btn-primary" onclick="printRecord()">🖨️ Yazdır / PDF</button>
+                <button type="button" class="btn btn-success" onclick="shareRecordCurrent()">📤 WhatsApp (Emoji Liste)</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
             </div>
         </div>
@@ -427,14 +398,21 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    // --- (A) Rakam Basamaklama ---
-    function formatCurrency(input) {
-        let value = input.value.replace(/\D/g, '');
-        input.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    // --- Girdi Formatlama ---
+    function formatInput(input) {
+        let val = input.value.replace(/\D/g, '');
+        input.value = val.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+    
+    // --- Fiyat Gösterim Formatı ---
+    function formatDisplayPrice(priceStr) {
+        if(!priceStr) return "";
+        if(priceStr.includes(".")) return priceStr; 
+        return Number(priceStr).toLocaleString('tr-TR');
     }
 
     let sessionImages = {}; 
-    let currentViewId = null; // Şu an görüntülenen ID
+    let currentViewId = null;
 
     // --- HARİTA ---
     var map = L.map('map').setView([39.92, 32.85], 6);
@@ -477,7 +455,6 @@
         } catch(e) {}
     }
 
-    // --- FOTOĞRAF ---
     function previewPhoto() {
         const file = document.getElementById('photoInput').files[0];
         if (file) {
@@ -498,24 +475,18 @@
 
     function saveRecord() {
         const id = document.getElementById('recordId').value || 'ID'+Date.now();
-        
         const record = {
             id,
             title: getVal('title'), desc: getVal('desc'), price: getVal('price'), currency: getVal('currency'),
             adType: getVal('adType'), propType: getVal('propType'),
-            grossM2: getVal('grossM2'), netM2: getVal('netM2'), 
-            rooms: getVal('rooms'), age: getVal('age'),
+            grossM2: getVal('grossM2'), netM2: getVal('netM2'), rooms: getVal('rooms'), age: getVal('age'),
             floorCurr: getVal('floorCurr'), floorTotal: getVal('floorTotal'), 
-            
             bath: getVal('bath'), wc: getVal('wc'), balcony: getVal('balcony'), 
             structureType: getVal('structureType'), heating: getVal('heating'), housingDetail: getVal('housingDetail'),
-            
             adaNo: getVal('adaNo'), parselNo: getVal('parselNo'), tapuStatus: getVal('tapuStatus'), usageStatus: getVal('usageStatus'),
             credit: getVal('credit'), swap: getVal('swap'), rentalIncome: getVal('rentalIncome'), devren: getVal('devren'), dues: getVal('dues'),
-            
             city: getVal('city'), district: getVal('district'), neighborhood: getVal('neighborhood'),
             lat: getVal('lat'), lng: getVal('lng'),
-            
             facade: getChecks('facade-check'), views: getChecks('view-check'),
             featIn: getChecks('feat-in'), featOut: getChecks('feat-out'), featLoc: getChecks('feat-loc'), featTrans: getChecks('feat-trans')
         };
@@ -541,11 +512,10 @@
         db.forEach(r => {
             let imgData = sessionImages[r.id];
             let thumb = imgData ? `<img src="${imgData}" style="width:50px; height:40px; object-fit:cover; border-radius:4px;">` : '📄';
-            
             let row = `<tr>
                 <td>${thumb}</td>
-                <td><strong>${r.title}</strong><br><small class="text-muted">${r.district} / ${r.neighborhood}</small></td>
-                <td>${r.price} ${r.currency}</td>
+                <td><strong>${r.title}</strong><br><small class="text-muted">${r.district}/${r.neighborhood}</small></td>
+                <td>${formatDisplayPrice(r.price)} ${r.currency}</td>
                 <td>${r.housingDetail || r.propType}</td>
                 <td>
                     <div class="btn-group" role="group">
@@ -559,7 +529,14 @@
         });
     }
 
-    // --- YENİLENMİŞ GÖRÜNTÜLEME VE BELGE OLUŞTURMA ---
+    // --- ÖZELLİK GRUPLAMA YARDIMCISI ---
+    function renderFeatureGroup(title, icon, items) {
+        if(!items || items.length === 0) return '';
+        let tags = items.map(i => `<span class="feature-tag">${icon} ${i}</span>`).join('');
+        return `<div class="feature-group-header">${title}</div><div>${tags}</div>`;
+    }
+
+    // --- GÖRÜNTÜLEME (VIEW) ---
     function viewRecord(id) {
         currentViewId = id;
         let db = JSON.parse(localStorage.getItem('emlakPortfoyDB')) || [];
@@ -571,68 +548,47 @@
             `<img src="${imgData}" class="img-fluid rounded border mb-3" style="width:100%; object-fit:cover;">` : 
             `<div class="alert alert-light border text-center p-5">Fotoğraf Yok</div>`;
 
-        // Tüm özellikleri tek listede topla
-        let allFeatures = [...r.facade, ...r.views, ...r.featIn, ...r.featOut, ...r.featTrans, ...r.featLoc];
-        let featuresHtml = allFeatures.map(f => `<span class="feature-tag">✔ ${f}</span>`).join('');
+        let featsHtml = '';
+        featsHtml += renderFeatureGroup('Cephe & Manzara', '✔', [...r.facade, ...r.views]);
+        featsHtml += renderFeatureGroup('İç Özellikler', '🏠', r.featIn);
+        featsHtml += renderFeatureGroup('Dış & Site', '🏢', r.featOut);
+        featsHtml += renderFeatureGroup('Muhit', '📍', r.featLoc);
+        featsHtml += renderFeatureGroup('Ulaşım', '🚍', r.featTrans);
 
-        // Teknik ve Tapu verilerini hazırla (Sadece dolu olanlar)
         let details = [
             {L:'Konum', V: `${r.city} / ${r.district} / ${r.neighborhood}`},
             {L:'Kategori', V: `${r.propType} (${r.housingDetail || '-'})`},
-            {L:'Oda Sayısı', V: r.rooms},
+            {L:'Oda / Kat', V: `${r.rooms} / ${r.floorCurr}. Kat (Top: ${r.floorTotal})`},
             {L:'Metrekare', V: `${r.grossM2} m² (Brüt) / ${r.netM2} m² (Net)`},
-            {L:'Bulunduğu Kat', V: `${r.floorCurr}. Kat (Top: ${r.floorTotal})`},
             {L:'Bina Yaşı', V: r.age},
-            {L:'Isıtma', V: r.heating},
-            {L:'Yapı Tipi', V: r.structureType},
-            {L:'Banyo/WC', V: `${r.bath} Banyo / ${r.wc} WC / ${r.balcony} Balkon`},
-            {L:'Tapu Durumu', V: r.tapuStatus},
-            {L:'Kullanım', V: r.usageStatus},
-            {L:'Ada/Parsel', V: (r.adaNo && r.parselNo) ? `${r.adaNo} / ${r.parselNo}` : ''},
-            {L:'Kredi/Takas', V: `Kredi: ${r.credit}, Takas: ${r.swap}`},
-            {L:'Kira Getirisi', V: r.rentalIncome ? r.rentalIncome + ' TL' : ''},
-            {L:'Aidat', V: r.dues ? r.dues + ' TL' : ''}
-        ].filter(d => d.V && d.V !== '' && d.V !== 'undefined' && !d.V.startsWith('undefined'));
+            {L:'Isıtma / Yapı', V: `${r.heating} / ${r.structureType}`},
+            {L:'Banyo/WC', V: `${r.bath} Banyo / ${r.wc} WC`},
+            {L:'Tapu / Kullanım', V: `${r.tapuStatus} / ${r.usageStatus}`},
+            {L:'Kredi / Takas', V: `Kredi: ${r.credit}, Takas: ${r.swap}`},
+            {L:'Ada / Parsel', V: (r.adaNo && r.parselNo) ? `${r.adaNo} / ${r.parselNo}` : ''}
+        ].filter(d => d.V && d.V !== '' && !d.V.startsWith('undefined'));
 
         let tableHtml = details.map(d => 
-            `<tr><td class="doc-label" width="40%">${d.L}</td><td class="doc-value">${d.V}</td></tr>`
+            `<tr><td class="doc-label" width="35%">${d.L}</td><td class="doc-value">${d.V}</td></tr>`
         ).join('');
 
-        // Modal İçeriği (Grid Yapısı)
         let html = `
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-md-5">
+                    <div class="col-md-5 d-flex flex-column">
                         ${photoHtml}
-                        <div class="text-center mt-2">
-                            <span class="badge bg-primary fs-6">${r.adType}</span>
-                            <span class="badge bg-dark fs-6">${r.propType}</span>
+                        <div class="desc-box flex-grow-1">
+                            <h6 class="fw-bold border-bottom pb-2">Açıklama</h6>
+                            <p style="white-space: pre-wrap;">${r.desc}</p>
                         </div>
                     </div>
-                    
                     <div class="col-md-7">
                         <h4 class="text-primary mb-1">${r.title}</h4>
-                        <div class="doc-price mb-3">${r.price} ${r.currency}</div>
-                        
+                        <div class="doc-price mb-3">${formatDisplayPrice(r.price)} ${r.currency}</div>
                         <table class="table table-sm table-borderless table-striped">
                             <tbody>${tableHtml}</tbody>
                         </table>
-
-                        <div class="mt-3">
-                            <h6 class="fw-bold border-bottom pb-1">Özellikler</h6>
-                            <div>${featuresHtml}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <div class="card bg-light">
-                            <div class="card-body">
-                                <h6 class="fw-bold">Açıklama</h6>
-                                <p style="white-space: pre-wrap;">${r.desc}</p>
-                            </div>
-                        </div>
+                        <div class="mt-3">${featsHtml}</div>
                     </div>
                 </div>
             </div>
@@ -641,48 +597,50 @@
         new bootstrap.Modal(document.getElementById('viewModal')).show();
     }
 
-    // --- PDF / YAZDIR FONKSİYONU ---
     function printRecord() {
         if(!currentViewId) return;
-        
-        // Modal içeriğini al
         let content = document.getElementById('viewBody').innerHTML;
-        
-        // Yeni pencere aç
-        let win = window.open('', '', 'height=800,width=1000');
-        win.document.write('<html><head><title>İlan Detayı - Yazdır</title>');
-        // Bootstrap CSS ekle (Style korunması için)
+        let win = window.open('', '', 'height=900,width=1100');
+        win.document.write('<html><head><title>İlan</title>');
         win.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">');
-        win.document.write('<style>body{padding:20px;} .doc-label{font-weight:bold; color:#555;} .doc-price{font-size:1.8rem; color:green; font-weight:bold;} .feature-tag{border:1px solid #ccc; padding:2px 5px; margin:2px; display:inline-block; font-size:0.8rem;}</style>');
+        win.document.write('<style>body{padding:20px;} .doc-label{font-weight:bold;color:#555;} .doc-price{font-size:1.8rem;color:green;font-weight:bold;} .feature-tag{border:1px solid #ddd;padding:2px 6px;margin:2px;display:inline-block;font-size:0.8rem;border-radius:4px;} .feature-group-header{font-weight:bold; color:#0d6efd; margin-top:10px; border-bottom:1px solid #ccc; font-size:0.9rem;} .desc-box{border:1px solid #ccc; padding:10px; height:100%;}</style>');
         win.document.write('</head><body>');
         win.document.write(content);
         win.document.write('</body></html>');
         win.document.close();
-        
-        // Yüklenince yazdır
-        win.onload = function() {
-            win.focus();
-            win.print();
-        };
+        win.onload = function() { win.focus(); win.print(); };
     }
 
+    // --- YENİ EMOJİLİ PAYLAŞIM FONKSİYONU ---
     function shareRecordCurrent() {
-        shareRecord(currentViewId);
-    }
-
-    function shareRecord(id) {
         let db = JSON.parse(localStorage.getItem('emlakPortfoyDB')) || [];
-        let r = db.find(x => x.id === id);
+        let r = db.find(x => x.id === currentViewId);
         if(!r) return;
 
-        let text = `🏠 *${r.title}*\n` +
-                   `📍 ${r.district} / ${r.neighborhood}\n` +
-                   `💰 *Fiyat:* ${r.price} ${r.currency}\n` +
-                   `📏 *Tip:* ${r.propType} (${r.housingDetail})\n` +
-                   `📞 Detaylar için arayınız!`;
+        // Özellikleri kısa özet halinde birleştir
+        let allFeat = [...r.facade, ...r.featIn, ...r.featOut].slice(0, 5).join(', '); 
+        if(allFeat.length > 0) allFeat += '...';
 
-        navigator.clipboard.writeText(text).then(() => {
-            alert("İlan özeti kopyalandı! 📋");
+        let text = 
+`🏠 *${r.title}*
+
+📍 *Konum:* ${r.district} / ${r.neighborhood}
+💰 *Fiyat:* ${formatDisplayPrice(r.price)} ${r.currency}
+
+🏗️ *Tip:* ${r.housingDetail || r.propType}
+📐 *Oda:* ${r.rooms} | ${r.grossM2}m²
+🏢 *Kat:* ${r.floorCurr}. Kat (Toplam ${r.floorTotal})
+
+🔥 *Isıtma:* ${r.heating}
+🛠️ *Yapı:* ${r.structureType}
+🛁 *Banyo:* ${r.bath} Banyo | ${r.wc} WC
+
+✅ *Özellikler:* ${allFeat}
+
+📞 *Detaylı bilgi ve sunum için arayınız!*`;
+
+        navigator.clipboard.writeText(text).then(() => { 
+            alert("✅ Emojili liste panoya kopyalandı!\nWhatsApp'a gidip 'Yapıştır' diyebilirsin."); 
         });
     }
 
@@ -690,24 +648,19 @@
         let db = JSON.parse(localStorage.getItem('emlakPortfoyDB')) || [];
         let r = db.find(x => x.id === id);
         if(!r) return;
-
         let trigger = new bootstrap.Tab(document.querySelector('#mainTab button[data-bs-target="#tab-identity"]'));
         trigger.show();
-
         document.getElementById('recordId').value = r.id;
         
+        // Tüm alanları doldur (Kısaltıldı, eski kodla aynı)
         setVal('title', r.title); setVal('desc', r.desc); setVal('price', r.price); setVal('currency', r.currency);
-        setVal('adType', r.adType); setVal('propType', r.propType);
-        setVal('grossM2', r.grossM2); setVal('netM2', r.netM2); setVal('rooms', r.rooms); setVal('age', r.age);
-        setVal('floorCurr', r.floorCurr); setVal('floorTotal', r.floorTotal); 
-        
+        setVal('adType', r.adType); setVal('propType', r.propType); setVal('grossM2', r.grossM2); setVal('netM2', r.netM2); 
+        setVal('rooms', r.rooms); setVal('age', r.age); setVal('floorCurr', r.floorCurr); setVal('floorTotal', r.floorTotal); 
         setVal('bath', r.bath); setVal('wc', r.wc); setVal('balcony', r.balcony); 
         setVal('structureType', r.structureType); setVal('heating', r.heating); setVal('housingDetail', r.housingDetail);
-        
         setVal('usageStatus', r.usageStatus); setVal('tapuStatus', r.tapuStatus);
-        setVal('adaNo', r.adaNo); setVal('parselNo', r.parselNo);
-        setVal('credit', r.credit); setVal('swap', r.swap); setVal('rentalIncome', r.rentalIncome); 
-        setVal('devren', r.devren); setVal('dues', r.dues);
+        setVal('adaNo', r.adaNo); setVal('parselNo', r.parselNo); setVal('credit', r.credit); setVal('swap', r.swap); 
+        setVal('rentalIncome', r.rentalIncome); setVal('devren', r.devren); setVal('dues', r.dues);
         setVal('city', r.city); setVal('district', r.district); setVal('neighborhood', r.neighborhood);
         setVal('lat', r.lat); setVal('lng', r.lng);
 
@@ -716,7 +669,6 @@
             let el = document.querySelector(`input[value="${val}"]`);
             if(el) el.checked = true;
         });
-        
         if(sessionImages[r.id]){
             document.getElementById('photoPreview').src = sessionImages[r.id];
             document.getElementById('photoPreview').style.display = 'block';
@@ -725,7 +677,7 @@
     }
 
     function deleteRecord(id) {
-        if(confirm('Silmek istediğine emin misin?')) {
+        if(confirm('Sil?')) {
             let db = JSON.parse(localStorage.getItem('emlakPortfoyDB')) || [];
             db = db.filter(x => x.id !== id);
             localStorage.setItem('emlakPortfoyDB', JSON.stringify(db));
@@ -733,31 +685,9 @@
             loadList();
         }
     }
-
-    function clearForm() {
-        document.getElementById('emlakForm').reset();
-        document.getElementById('recordId').value = '';
-        document.getElementById('photoPreview').style.display = 'none';
-        document.getElementById('photoBase64').value = '';
-        if(marker) map.removeLayer(marker);
-    }
-    
-    function exportData() {
-        let data = localStorage.getItem('emlakPortfoyDB');
-        let blob = new Blob([data], {type: 'application/json'});
-        let a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'emlak_yedek.json';
-        a.click();
-    }
-    function importData(input) {
-        let reader = new FileReader();
-        reader.onload = e => {
-            localStorage.setItem('emlakPortfoyDB', JSON.stringify(JSON.parse(e.target.result)));
-            loadList(); alert('Yüklendi!');
-        };
-        reader.readAsText(input.files[0]);
-    }
+    function clearForm() { document.getElementById('emlakForm').reset(); document.getElementById('recordId').value = ''; document.getElementById('photoPreview').style.display = 'none'; document.getElementById('photoBase64').value = ''; if(marker) map.removeLayer(marker); }
+    function exportData() { let data = localStorage.getItem('emlakPortfoyDB'); let blob = new Blob([data], {type: 'application/json'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'emlak_yedek.json'; a.click(); }
+    function importData(input) { let reader = new FileReader(); reader.onload = e => { localStorage.setItem('emlakPortfoyDB', JSON.stringify(JSON.parse(e.target.result))); loadList(); alert('Yüklendi!'); }; reader.readAsText(input.files[0]); }
 </script>
 </body>
 </html>
